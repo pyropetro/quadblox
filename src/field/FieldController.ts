@@ -1,7 +1,15 @@
-import Tetromino from "../tetrominoes/Tetromino";
-import TetrominoI from "../tetrominoes/TetrominoI";
 import Field from "./Field";
 import { Direction } from "../Direction";
+import { TetrominoType } from "../TetrominoType";
+import Tetromino from "../tetrominoes/Tetromino";
+import TetrominoI from "../tetrominoes/TetrominoI";
+import TetrominoO from "../tetrominoes/TetrominoO";
+import TetrominoT from "../tetrominoes/TetrominoT";
+import TetrominoS from "../tetrominoes/TetrominoS";
+import TetrominoZ from "../tetrominoes/TetrominoZ";
+import TetrominoL from "../tetrominoes/TetrominoL";
+import TetrominoJ from "../tetrominoes/TetrominoJ";
+import { random } from "lodash";
 
 export default class FieldController {
   field: Field;
@@ -20,7 +28,7 @@ export default class FieldController {
 
   addPiece():boolean {
     /* Add piece type randomizer once all piece types have been created */
-    let newPiece = new TetrominoI();
+    let newPiece = this.generateRandomPiece();
 
     let center = Math.floor(this.field.width / 2);
     let x = center - Math.ceil(newPiece.width / 2);
@@ -31,6 +39,40 @@ export default class FieldController {
     return this.attemptToPlacePiece(newPiece, newPiece.x, newPiece.y);
   }
 
+  generateRandomPiece(): Tetromino {
+    let newPiece: Tetromino = null;
+    let types = Object.entries(TetrominoType);
+    const randomNumber = Math.floor(Math.random() * (types.length / 2)) ;
+    /* console.log(types);
+    console.log(randomNumber); */
+    switch (randomNumber) {
+      case 0:
+        newPiece = new TetrominoI();
+        break;
+      case 1:
+        newPiece = new TetrominoO();
+        break;
+      case 2:
+        newPiece = new TetrominoT();
+        break;
+      case 3:
+        newPiece = new TetrominoS();
+        break;
+      case 4:
+        newPiece = new TetrominoZ();
+        break;
+      case 5:
+        newPiece = new TetrominoL();
+        break;
+      case 6:
+        newPiece = new TetrominoJ();
+        break;
+      default:
+        throw new Error(`Tetromino type ${randomNumber} does not exist`);
+    }
+    return newPiece;
+  }
+
   attemptToPlacePiece(piece: Tetromino, x: number, y: number) {
     if (this.canPlacePiece(piece, x, y)) {
       this.clearPreviousPosition();
@@ -38,8 +80,12 @@ export default class FieldController {
       this.previousCoordinates = [];
       for (let h=0; h<piece.height; h++) {
         for (let w=0; w<piece.width; w++) {
-          this.field.setContentsAtCoordinates(x + w, y + h, piece.symbol);
-          this.previousCoordinates.push([x + w, y + h]);
+          let character = piece.grid.matrix[h][w];
+          if (character) {
+            this.field.setContentsAtCoordinates(x + w, y + h, character);
+            this.previousCoordinates.push([x + w, y + h]);
+          }
+          
         }
       }
       return true;
@@ -90,6 +136,9 @@ export default class FieldController {
   canPlacePiece(piece: Tetromino, x: number, y: number): boolean {
     for (let h=0; h<piece.height; h++) {
       for (let w=0; w<piece.width; w++) {
+        if (piece.grid.matrix[h][w] === '') {
+          continue;
+        }
         const xOffset = x + w;
         const yOffset = y + h;
         const isOutOfBounds = xOffset < 0 ||
