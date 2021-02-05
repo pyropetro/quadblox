@@ -20,10 +20,10 @@ export default class FieldMaster {
     const width: number = 14; 
     const height: number = 28; 
     const gridSize: number = 18;
+    this._speed = 100;
     this._field = new Field(width, height, gridSize);
     this._fieldRenderer = new FieldRenderer(this._field, fieldId);
     this._fieldController = new FieldController(this._field);
-    this._speed = 250;
   }
 
   public initialize(): void {

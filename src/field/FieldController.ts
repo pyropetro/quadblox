@@ -20,20 +20,22 @@ export default class FieldController {
 
   addPiece():boolean {
     /* Add piece type randomizer once all piece types have been created */
-    this.currentPiece = new TetrominoI();
+    let newPiece = new TetrominoI();
 
     let center = Math.floor(this.field.width / 2);
-    let x = center - Math.ceil(this.currentPiece.width / 2);
+    let x = center - Math.ceil(newPiece.width / 2);
 
-    this.currentPiece.x = x;
-    this.currentPiece.y = 0;
+    newPiece.x = x;
+    newPiece.y = 0;
 
-    return this.attemptToPlacePiece(this.currentPiece, this.currentPiece.x, this.currentPiece.y);
+    return this.attemptToPlacePiece(newPiece, newPiece.x, newPiece.y);
   }
 
   attemptToPlacePiece(piece: Tetromino, x: number, y: number) {
     if (this.canPlacePiece(piece, x, y)) {
       this.clearPreviousPosition();
+      this.currentPiece = piece;
+      this.previousCoordinates = [];
       for (let h=0; h<piece.height; h++) {
         for (let w=0; w<piece.width; w++) {
           this.field.setContentsAtCoordinates(x + w, y + h, piece.symbol);
@@ -46,12 +48,14 @@ export default class FieldController {
   }
 
   clearPreviousPosition(): void {
-    for (let point=0; point<this.previousCoordinates.length; point++) {
-      const x = this.previousCoordinates[point][0];
-      const y = this.previousCoordinates[point][1];
-      this.field.setContentsAtCoordinates(x, y, '');
+    if (this.currentPiece) {
+      for (let point=0; point<this.previousCoordinates.length; point++) {
+        const x = this.previousCoordinates[point][0];
+        const y = this.previousCoordinates[point][1];
+        this.field.setContentsAtCoordinates(x, y, '');
+      }
+      this.previousCoordinates = [];
     }
-    this.previousCoordinates = [];
   }
 
   attemptToMovePiece(direction: Direction): boolean {
@@ -59,10 +63,11 @@ export default class FieldController {
     let y: number = this.currentPiece.y; */
     switch (direction) {
       case "DOWN":
-        this.currentPiece.y++;
-        let moveSuccessful = this.attemptToPlacePiece(this.currentPiece, this.currentPiece.x, this.currentPiece.y);
+        let moveSuccessful = this.attemptToPlacePiece(this.currentPiece, this.currentPiece.x, this.currentPiece.y + 1);
         if (!moveSuccessful) {
-          this.currentPiece = null;
+          this.cementPiece();
+        } else {
+          this.currentPiece.y++;
         }
         return moveSuccessful;
       case "LEFT":
@@ -108,6 +113,19 @@ export default class FieldController {
   hasEmptySpaceAt(x: number, y: number): boolean {
     const hasEmptySpace = this.field.contentsAtCoordinates(x, y) === '';
     return hasEmptySpace;
+  }
+
+  cementPiece(): void {
+    let piece = this.currentPiece;
+    for (let h=0; h<piece.height; h++) {
+      for (let w=0; w<piece.width; w++) {
+        const xOffset = piece.x + w;
+        const yOffset = piece.y + h;
+        const contents: string = this.field.contentsAtCoordinates(xOffset, yOffset);
+        this.field.setContentsAtCoordinates(xOffset, yOffset, contents.toLowerCase());
+      }
+    }
+    this.currentPiece = null;
   }
 
 
