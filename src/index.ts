@@ -1,16 +1,15 @@
 import FieldMaster from './field/FieldMaster'
-import TetriminoI from './tetriminoes/TetriminoI';
+import Game from './Game';
 
 
 (function main(): void {
-  let fieldMaster = new FieldMaster(15, 30, 18, 'field');
+  let game = new Game('field');
 
-  /* let tetriminoI = new TetriminoI(); */
+  /* let tetrominoI = new TetrominoI(); */
 
-  console.log(fieldMaster);
-  /* console.log(tetriminoI.grid.matrix); */
-  fieldMaster.fieldController.addPiece();
-  fieldMaster.render();
+  console.log(game);
+  /* console.log(tetrominoI.grid.matrix); */
+  game.start();
 
   /* document.head.appendChild(new ) */
 })()

@@ -7,29 +7,55 @@
 import Field from "./Field";
 import FieldController from "./FieldController";
 import FieldRenderer from './FieldRenderer'
+import { Direction } from "../Direction";
 
 export default class FieldMaster {
-  field: Field;
+  private _field: Field;
   private _fieldRenderer: FieldRenderer;
-  fieldController: FieldController;
+  private _fieldController: FieldController;
+  private _speed: number;
+  timer: NodeJS.Timeout;
 
-  constructor(
-    width: number, 
-    height: number, 
-    gridSize: number,
-    fieldId: string
-  ) {
-    let field = new Field(width, height, gridSize);
-    this.field = field;
-    this._fieldRenderer = new FieldRenderer(field, fieldId);
-    this.fieldController = new FieldController(field);
+  constructor(fieldId: string) {
+    const width: number = 14; 
+    const height: number = 28; 
+    const gridSize: number = 18;
+    this._field = new Field(width, height, gridSize);
+    this._fieldRenderer = new FieldRenderer(this._field, fieldId);
+    this._fieldController = new FieldController(this._field);
+    this._speed = 250;
+  }
+
+  public initialize(): void {
+    this._fieldRenderer.renderField();
+    this.startTimer();
+  }
+
+  public startTimer(): void {
+    this.timer = setInterval(this._addOrMovePiece.bind(this), this._speed);
+  }
+
+  public stopTimer(): void {
+    clearInterval(this.timer);
   }
 
   public render(): void {
-    this._fieldRenderer.renderField();
     this._fieldRenderer.render();
   }
 
+  private _addOrMovePiece(): void {
+    let success = false;
+    if (!this._fieldController.hasCurrentPiece) {
+      success = this._fieldController.addPiece();
+    } else {
+      let moveSuccessful = this._fieldController.attemptToMovePiece(Direction.Down);
+      success = true;
+    }
+    this.render();
+    if (!success) {
+      window.dispatchEvent(new Event('lose'));
+    }
+  }
   
 
   

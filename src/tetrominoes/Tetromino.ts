@@ -1,9 +1,9 @@
 import Grid from '../Grid';
-import ITetrimino from './ITetrimino'
+import ITetromino from './ITetromino'
 
-export default class Tetrimino {
-  grid: Grid;
+export default class Tetromino {
   readonly symbol: string;
+  grid: Grid;
   /* private _width: number;
   private _height: number; */
   x: number;
@@ -15,6 +15,8 @@ export default class Tetrimino {
   constructor(symbol: string, matrix: string[][]) {
     this.symbol = symbol;
     this.grid = new Grid(matrix);
+    this.x = 0;
+    this.y = 0;
   }
 
   get width(): number {

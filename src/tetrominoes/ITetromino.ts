@@ -1,5 +1,5 @@
 import Grid from "../Grid";
 
-export default interface ITetrimino {
+export default interface ITetromino {
   readonly symbol: string;
 }

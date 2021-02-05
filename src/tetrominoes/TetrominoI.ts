@@ -1,8 +1,8 @@
 import Grid from "../Grid";
-import ITetrimino from "./ITetrimino";
-import Tetrimino from "./Tetrimino";
+import ITetromino from "./ITetromino";
+import Tetromino from "./Tetromino";
 
-export default class TetriminoI extends Tetrimino {
+export default class TetrominoI extends Tetromino {
 
   constructor() {
     let symbol = 'I';
