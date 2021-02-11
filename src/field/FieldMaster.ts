@@ -48,7 +48,7 @@ export default class FieldMaster {
     if (!this._fieldController.hasCurrentPiece) {
       success = this._fieldController.addPiece();
     } else {
-      let moveSuccessful = this._fieldController.attemptToMovePiece(Direction.Down);
+      this._fieldController.attemptToMovePiece(Direction.Down);
       success = true;
     }
     this.render();

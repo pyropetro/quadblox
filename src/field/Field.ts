@@ -32,9 +32,8 @@ export default class Field {
     });
   }
 
-  contentsAtCoordinates(x: number, y: number): string {
-    let contents = this.grid.matrix[y][x];
-    return contents;
+  getContentsAtCoordinates(x: number, y: number): string {
+    return this.grid.contentsAtCoordinates(x, y);
   }
 
   setContentsAtCoordinates(x: number, y: number, contents: string) {

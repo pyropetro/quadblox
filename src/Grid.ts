@@ -1,13 +1,13 @@
-import IDimensions from "./IDimensions";
+import IRectangle from "./interfaces/IRectangle";
 
 export default class Grid {
   matrix: string[][];
 
-  constructor(value: IDimensions | string[][]) {
+  constructor(value: IRectangle | string[][]) {
     this.matrix = this._initializeMatrix(value);
   }
 
-  private _initializeMatrix(value: IDimensions | string[][]): string[][] {
+  private _initializeMatrix(value: IRectangle | string[][]): string[][] {
     let matrix: string[][] = [];
     if ('width' in value) {
       for (let h=0; h<value.height; h++) {
@@ -21,5 +21,9 @@ export default class Grid {
     }
 
     return matrix;
+  }
+
+  contentsAtCoordinates(x: number, y: number): string {
+    return this.matrix[y][x];
   }
 }
