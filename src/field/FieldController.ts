@@ -101,28 +101,34 @@ export default class FieldController {
     }
   }
 
-  attemptToMovePiece(direction: Direction): boolean {
-    /* let x: number = this.currentPiece.x;
-    let y: number = this.currentPiece.y; */
+  attemptToMovePiece(direction: Direction): void {
+    let moveSuccessful: boolean;
+    let x: number = this.currentPiece.x;
+    let y: number = this.currentPiece.y;
     switch (direction) {
       case "DOWN":
-        let moveSuccessful = this.attemptToPlacePiece(this.currentPiece, this.currentPiece.x, this.currentPiece.y + 1);
+        moveSuccessful = this.attemptToPlacePiece(this.currentPiece, x, y + 1);
         if (!moveSuccessful) {
           this.cementPiece();
+          this._checkForCompletedLines();
         } else {
           this.currentPiece.y++;
         }
-        return moveSuccessful;
+        return;
       case "LEFT":
-        this.currentPiece.x--;
+        x--;
         break;
       case "RIGHT":
-        this.currentPiece.x++;
+        x++;
         break;
       default:
         break;
     }
-    this.attemptToPlacePiece(this.currentPiece);
+    moveSuccessful = this.attemptToPlacePiece(this.currentPiece, x, y);
+    if (moveSuccessful) {
+      this.currentPiece.x = x;
+      this.currentPiece.y = y;
+    }
   }
 
   /* movePiece() {
@@ -172,7 +178,26 @@ export default class FieldController {
     this.currentPiece = null;
   }
 
-  _forEachPoint(piece: Tetromino, callback: IPointCallback): boolean {
+  private _checkForCompletedLines() {
+    /* for each line in the grid
+    if every space in the line is full
+    empty all those spaces
+    splice that line, then unshift it back to the top of the grid  */
+    let emptyLines: string[][] = [];
+    for (let h=0; h<this.field.height; h++) {
+      let line = this.field.grid.matrix[h];
+      let isCompletedLine = line.every((point, index) => !this.hasEmptySpaceAt(index, h));
+      if (isCompletedLine) {
+        /* emptyLines.push(h); */
+        this.field.grid.matrix[h].forEach((point, index) => this.field.setContentsAtCoordinates(index, h, ''));
+        let emptyLine = this.field.grid.matrix[h].splice(h, 1);
+        emptyLines.push(emptyLine);
+      }
+    }
+    this.field.grid.matrix.unshift(...emptyLines);
+  }
+
+  private _forEachPoint(piece: Tetromino, callback: IPointCallback): boolean {
     for (let h=0; h<piece.height; h++) {
       for (let w=0; w<piece.width; w++) {
         if (!callback(w, h)) {

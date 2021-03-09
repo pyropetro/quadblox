@@ -20,7 +20,7 @@ export default class FieldMaster {
     const width: number = 14; 
     const height: number = 28; 
     const gridSize: number = 18;
-    this._speed = 100;
+    this._speed = 250;
     this._field = new Field(width, height, gridSize);
     this._fieldRenderer = new FieldRenderer(this._field, fieldId);
     this._fieldController = new FieldController(this._field);
@@ -32,7 +32,7 @@ export default class FieldMaster {
   }
 
   public startTimer(): void {
-    this.timer = setInterval(this._addOrMovePiece.bind(this), this._speed);
+    this.timer = setInterval(this._addOrDropPiece.bind(this), this._speed);
   }
 
   public stopTimer(): void {
@@ -43,7 +43,7 @@ export default class FieldMaster {
     this._fieldRenderer.render();
   }
 
-  private _addOrMovePiece(): void {
+  private _addOrDropPiece(): void {
     let success = false;
     if (!this._fieldController.hasCurrentPiece) {
       success = this._fieldController.addPiece();
@@ -54,6 +54,18 @@ export default class FieldMaster {
     this.render();
     if (!success) {
       window.dispatchEvent(new Event('lose'));
+    }
+  }
+
+  moveLeft(): void {
+    if (this._fieldController.hasCurrentPiece) {
+      this._fieldController.attemptToMovePiece(Direction.Left);
+    }
+  }
+
+  moveRight(): void {
+    if (this._fieldController.hasCurrentPiece) {
+      this._fieldController.attemptToMovePiece(Direction.Right);
     }
   }
   

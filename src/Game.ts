@@ -27,9 +27,17 @@ export default class Game {
   }
 
   determineKeyAction(event: KeyboardEvent): void {
+    let keycode: string | number = event.key;
+    /* if (event.key === ' ') */
     switch (event.key) {
       case ' ':
         this.pause();
+        break;
+      case 'ArrowLeft':
+        this._fieldMaster.moveLeft();
+        break;
+      case 'ArrowRight':
+        this._fieldMaster.moveRight();
         break;
       default:
         break;
