@@ -70,8 +70,8 @@ export default class FieldRenderer implements IRenderable{
 
   public renderField(): void {
     
-    this._fieldDom.setAttribute('width', this._findGridUnitPixelSize(this._field.width));
-    this._fieldDom.setAttribute('height', this._findGridUnitPixelSize(this._field.height));
+    this._fieldDom.setAttribute('width', this._findGridUnitPixelSize(this._field.grid.width));
+    this._fieldDom.setAttribute('height', this._findGridUnitPixelSize(this._field.grid.height));
 
     /* fieldContext.fillStyle = this.backgroundColor;
     fieldContext.fillRect(0, 0, this.size.width, this.size.height); */
@@ -81,13 +81,13 @@ export default class FieldRenderer implements IRenderable{
   }
 
   public render(): void {
-    for (let h=0; h<this._field.height; h++) {
-      for (let w=0; w<this._field.width; w++) {
+    for (let h=0; h<this._field.grid.height; h++) {
+      for (let w=0; w<this._field.grid.width; w++) {
         const size = this._field.gridSize;
         const x = w * size;
         const y = h * size;
         this._fieldContext.clearRect(x, y, size, size);
-        const currentSymbol = this._field.getContentsAtCoordinates(w, h).toLowerCase();
+        const currentSymbol = this._field.grid.getContentsAtCoordinates(w, h).toLowerCase();
         if (currentSymbol) {
           this._renderBlock(x, y, size, currentSymbol);
         }

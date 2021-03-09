@@ -19,11 +19,8 @@ export default class Tetromino {
     this.y = 0;
   }
 
-  get width(): number {
-    return this.grid.matrix[0].length;
-  }
-  get height(): number {
-    return this.grid.matrix.length;
+  rotate(): void {
+    
   }
 
 

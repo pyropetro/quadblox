@@ -9,7 +9,6 @@ import TetrominoS from "../tetrominoes/TetrominoS";
 import TetrominoZ from "../tetrominoes/TetrominoZ";
 import TetrominoL from "../tetrominoes/TetrominoL";
 import TetrominoJ from "../tetrominoes/TetrominoJ";
-import IPointCallback from "../interfaces/IPointCallback";
 
 export default class FieldController {
   field: Field;
@@ -29,8 +28,8 @@ export default class FieldController {
   addPiece():boolean {
     let newPiece = this.generateRandomPiece();
 
-    let center = Math.floor(this.field.width / 2);
-    let x = center - Math.ceil(newPiece.width / 2);
+    let center = Math.floor(this.field.grid.width / 2);
+    let x = center - Math.ceil(newPiece.grid.width / 2);
 
     newPiece.x = x;
     newPiece.y = 0;
@@ -75,12 +74,12 @@ export default class FieldController {
       this.clearPreviousPosition();
       this.currentPiece = piece;
       this.previousCoordinates = [];
-      this._forEachPoint(piece, (width: number, height: number) => {
-        let character = piece.grid.matrix[height][width];
-        if (character) {
+      piece.grid.forEachPoint((width: number, height: number, contentsAtPoint: string) => {
+        /* let character = piece.grid.getContentsAtCoordinates(width, height); */
+        if (contentsAtPoint !== '') {
           const xOffset = x + width;
           const yOffset = y + height;
-          this.field.setContentsAtCoordinates(xOffset, yOffset, character);
+          this.field.grid.setContentsAtCoordinates(xOffset, yOffset, contentsAtPoint);
           this.previousCoordinates.push([xOffset, yOffset]);
         }
         return true;
@@ -95,7 +94,7 @@ export default class FieldController {
       for (let point=0; point<this.previousCoordinates.length; point++) {
         const x = this.previousCoordinates[point][0];
         const y = this.previousCoordinates[point][1];
-        this.field.setContentsAtCoordinates(x, y, '');
+        this.field.grid.setContentsAtCoordinates(x, y, '');
       }
       this.previousCoordinates = [];
     }
@@ -137,20 +136,20 @@ export default class FieldController {
   } */
 
   canPlacePiece(piece: Tetromino, x: number, y: number): boolean {
-    let result = this._forEachPoint(piece, (width: number, height: number) => {
-      if (piece.grid.matrix[height][width] === '') {
+    let result = piece.grid.forEachPoint((width: number, height: number, contentsAtPoint) => {
+      if (contentsAtPoint === '') {
         return true;
       }
       const xOffset = x + width;
       const yOffset = y + height;
       const isOutOfBounds = xOffset < 0 ||
-        xOffset > this.field.width - 1 ||
+        xOffset > this.field.grid.width - 1 ||
         yOffset < 0 ||
-        yOffset > this.field.height - 1;
+        yOffset > this.field.grid.height - 1;
       if (isOutOfBounds) {
         return false;
       }
-      const contentsAtCoordinates = this.field.getContentsAtCoordinates(xOffset, yOffset);
+      const contentsAtCoordinates = this.field.grid.getContentsAtCoordinates(xOffset, yOffset);
       const isOccupiedSpace = contentsAtCoordinates !== piece.symbol && 
       contentsAtCoordinates !== '';
       if (isOccupiedSpace) {
@@ -162,17 +161,17 @@ export default class FieldController {
   }
 
   hasEmptySpaceAt(x: number, y: number): boolean {
-    const hasEmptySpace = this.field.getContentsAtCoordinates(x, y) === '';
+    const hasEmptySpace = this.field.grid.getContentsAtCoordinates(x, y) === '';
     return hasEmptySpace;
   }
 
   cementPiece(): void {
     let piece = this.currentPiece;
-    this._forEachPoint(piece, (width: number, height: number) => {
+    piece.grid.forEachPoint((width: number, height: number, contentsAtPoint: string) => {
       const xOffset = piece.x + width;
       const yOffset = piece.y + height;
-      const contents: string = this.field.getContentsAtCoordinates(xOffset, yOffset);
-      this.field.setContentsAtCoordinates(xOffset, yOffset, contents.toLowerCase());
+      const contents: string = this.field.grid.getContentsAtCoordinates(xOffset, yOffset);
+      this.field.grid.setContentsAtCoordinates(xOffset, yOffset, contents.toLowerCase());
       return true;
     })
     this.currentPiece = null;
@@ -184,28 +183,17 @@ export default class FieldController {
     empty all those spaces
     splice that line, then unshift it back to the top of the grid  */
     let emptyLines: string[][] = [];
-    for (let h=0; h<this.field.height; h++) {
+    for (let h=0; h<this.field.grid.height; h++) {
       let line = this.field.grid.matrix[h];
       let isCompletedLine = line.every((point, index) => !this.hasEmptySpaceAt(index, h));
       if (isCompletedLine) {
         /* emptyLines.push(h); */
-        this.field.grid.matrix[h].forEach((point, index) => this.field.setContentsAtCoordinates(index, h, ''));
+        this.field.grid.matrix[h].forEach((point, index) => this.field.grid.setContentsAtCoordinates(index, h, ''));
         let emptyLine = this.field.grid.matrix[h].splice(h, 1);
         emptyLines.push(emptyLine);
       }
     }
     this.field.grid.matrix.unshift(...emptyLines);
-  }
-
-  private _forEachPoint(piece: Tetromino, callback: IPointCallback): boolean {
-    for (let h=0; h<piece.height; h++) {
-      for (let w=0; w<piece.width; w++) {
-        if (!callback(w, h)) {
-          return false;
-        }
-      }
-    }
-    return true;
   }
 
 

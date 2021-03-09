@@ -1,4 +1,5 @@
 import IRectangle from "./interfaces/IRectangle";
+import IPointCallback from "./interfaces/IPointCallback";
 
 export default class Grid {
   matrix: string[][];
@@ -23,7 +24,30 @@ export default class Grid {
     return matrix;
   }
 
-  contentsAtCoordinates(x: number, y: number): string {
+  get width(): number {
+    return this.matrix[0].length;
+  }
+  get height(): number {
+    return this.matrix.length;
+  }
+
+  getContentsAtCoordinates(x: number, y: number): string {
     return this.matrix[y][x];
+  }
+
+  setContentsAtCoordinates(x: number, y: number, contents: string) {
+    this.matrix[y][x] = contents;
+  }
+
+  forEachPoint(callback: IPointCallback): boolean {
+    for (let h=0; h<this.height; h++) {
+      for (let w=0; w<this.width; w++) {
+        let contentsAtPoint = this.getContentsAtCoordinates(w, h);
+        if (!callback(w, h, contentsAtPoint)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 }
